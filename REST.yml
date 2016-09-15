@@ -1,0 +1,664 @@
+swagger: '2.0'
+
+info:
+  version: 0.1.0
+  title: speculos-exchange
+  description: Speculos exchange abstract API.
+  contact:
+    name: Official repository
+    url: https://github.com/speculos/speculos-exchange
+  license:
+    name: MIT
+
+securityDefinitions:
+  token:
+    type: apiKey
+    description: |
+      Application token (JWT) retrieved from a centralized auth provider.
+      This token is hold in a `bearer` authorization header, taken from the [OAuth2 RFC](https://tools.ietf.org/html/rfc6750).
+    in: header
+    name: Authorization
+  exchangeToken:
+    type: apiKey
+    description: |
+      Exchange token (JWT) holding user credentials for sensitive API calls (trading).
+      This token is hold in a `bearer` authorization header, taken from the [OAuth2 RFC](https://tools.ietf.org/html/rfc6750).
+    in: header
+    name: Authorization
+
+paths:
+  /meta:
+    get:
+      description: |
+        Returns server meta data.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: Meta
+            type: object
+            properties:
+              name:
+                type: string
+              version:
+                type: number
+              token:
+                type: object
+                properties:
+                  algorithm:
+                    type: string
+                  publicKey:
+                    type: string
+                required:
+                  - algorithm
+                  - publicKey
+            required:
+              - name
+              - version
+              - token
+  /markets:
+    get:
+      description: |
+        Returns the markets list available on this exchange.
+      tags:
+        - Public API
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: Markets
+            type: array
+            items:
+              $ref: '#/definitions/Market'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+      security:
+        - token: []
+  /markets/{market}:
+    get:
+      description: |
+        Returns mashup data about the specified market.
+      tags:
+        - Public API
+      parameters:
+        - $ref: '#/parameters/Market'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: MarketMashup
+            type: object
+            properties:
+              currency:
+                type: string
+              asset:
+                type: string
+              ticker:
+                type: object
+                properties:
+                  last:
+                    type: number
+                    format: double
+                  volume:
+                    type: object
+                    properties:
+                      currency:
+                        type: number
+                        format: double
+                      asset:
+                        type: number
+                        format: double
+                    required:
+                      - currency
+                      - asset
+                  highest:
+                    type: number
+                    format: double
+                  lowest:
+                    type: number
+                    format: double
+                  percentChange:
+                    type: number
+                    format: double
+                required:
+                  - last
+                  - volume
+                  - highest
+                  - lowest
+                  - percentChange
+            required:
+              - currency
+              - asset
+              - ticker
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+        404:
+          description: |
+            - `market.notFound`: Market not found.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - token: []
+  /markets/{market}/trades:
+    get:
+      description: |
+        Searches through the trades history of the provided market.
+      tags:
+        - Public API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - name: page
+          in: query
+          type: number
+          format: int32
+          description: Page number.
+          required: false
+          default: 0
+          minimum: 0
+        - name: size
+          in: query
+          type: number
+          format: int32
+          description: Page size.
+          required: false
+          default: 10
+          minimum: 5
+          maximum: 50
+        - name: startDate
+          in: query
+          type: string
+          format: date
+          description: Search start date. Defaults to current date minus a week.
+          required: false
+        - name: endDate
+          in: query
+          type: string
+          format: date
+          description: Search end date. Defaults to current date.
+          required: false
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: Trades
+            type: array
+            items:
+              $ref: '#/definitions/Trade'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+        404:
+          description: |
+            - `market.notFound`: Market not found.
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: |
+            - `validation`: Missing or invalid parameter. Refer to the `details` object for more information.
+            - `interval.invalid`: The start date is after the end date.
+            - `interval.tooWide`: The interval between the start date and the end date is too wide.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - token: []
+  /markets/{market}/orders:
+    get:
+      description: |
+        Returns the market order book.
+      tags:
+        - Public API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - name: depth
+          in: query
+          type: number
+          format: int32
+          description: Order book depth to retrieve.
+          required: false
+          default: 100
+          minimum: 1
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: OrderBook
+            type: object
+            properties:
+              bids:
+                type: array
+                items:
+                  $ref: '#/definitions/Order'
+              asks:
+                type: array
+                items:
+                  $ref: '#/definitions/Order'
+            required:
+              - bids
+              - asks
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+        409:
+          description: |
+            - `validation`: Missing or invalid parameter. Refer to the `details` object for more information.
+      security:
+        - token: []
+  /tokens:
+    post:
+      description: |
+        Creates a new JWT to hold user credentials for the exchange.
+        The input parameters are exchange-specific, depending on the required underlying credentials.
+
+        The newly created JWT will be the only
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: ExchangeToken
+            type: object
+            properties:
+              token:
+                type: string
+            required:
+              - token
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+        409:
+          description: |
+            - `validation`: Missing or invalid parameter. Refer to the `details` object for more information
+      security:
+        - token: []
+  /markets/{market}/openOrders:
+    get:
+      description: |
+        Returns the open orders of an account from the exchange.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: OpenOrders
+            type: array
+            items:
+              $ref: '#/definitions/OpenOrder'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+      security:
+        - exchangeToken: []
+    post:
+      description: |
+        Create an order on this market.
+        The order will be added in the order book if no instant resolution could be made due to the current market bids/asks.
+
+        You can use one of the three following strategies to ensure your order will be processed accordingly:
+          - `fillOrKill`: The order must either fill in its entirety or be completely aborted.
+          - `immediateOrCancel`: The order can be partially or completely filled, but any portion of the order that cannot be filled immediately will be canceled rather than left on the order book
+          - `postOnly`: The order will only be placed if no portion of it fills immediately. This guarantees you will never pay the taker fee on any part of the order that fills.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - name: order
+          in: body
+          description: Order to place.
+          schema:
+            type: object
+            properties:
+              strategy:
+                type: string
+                enum:
+                  - fillOrKill
+                  - immediateOrCancel
+                  - postOnly
+              rate:
+                type: number
+                format: double
+                minimum: 0
+              amount:
+                type: number
+                format: double
+                minimum: 0
+            required:
+              - strategy
+              - rate
+              - amount
+          required: true
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            $ref: '#/definitions/OpenOrderRef'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+        404:
+          description: |
+            - `market.notFound`: Market not found.
+            - `openOrder.notFound`: Open order not found.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - exchangeToken: []
+  /markets/{market}/openOrders/{openOrder}:
+    delete:
+      description: |
+        Cancel an order open on this market.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - $ref: '#/parameters/OpenOrder'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+        404:
+          description: |
+            - `market.notFound`: Unknown market.
+            - `openOrder.notFound`: Unknown open order.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - exchangeToken: []
+  /markets/{market}/openPosition:
+    get:
+      description: |
+        Return the open position of an account on the specified market.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            $ref: '#/definitions/OpenPosition'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+        404:
+          description: |
+            - `market.notFound`: Unknown market.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - exchangeToken: []
+    post:
+      description: |
+        Modify the open position of an account on the specified market.
+
+        There are two operations available:
+        - `buy`: Place a margin buy order on the specified market.
+        - `sell`: Place a margin sell order on the specified market.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - name: operation
+          in: body
+          description: Operation.
+          schema:
+            title: Operation
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - buy
+                  - sell
+              rate:
+                type: number
+                format: double
+                minimum: 0
+              amount:
+                type: number
+                format: double
+                minimum: 0
+              lendingRate:
+                type: number
+                format: double
+                minimum: 0
+            required:
+              - type
+              - rate
+              - amount
+          required: true
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            $ref: '#/definitions/OpenOrderRef'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+        404:
+          description: |
+            - `market.notFound`: Unknown market.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - exchangeToken: []
+    delete:
+      description: |
+        Close the open position of an account on the specified market.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: ResultingTrades
+            type: array
+            items:
+              $ref: '#/definitions/Trade'
+
+parameters:
+  Market:
+    name: market
+    in: path
+    type: string
+    description: Market currency/asset pair.
+    required: true
+    pattern: ^[A-Z]+_[A-Z]+$
+  OpenOrder:
+    name: openOrder
+    in: path
+    type: string
+    description: Order unique identifier.
+    required: true
+
+responses:
+  MissingOrInvalidToken:
+    description: |
+      - `auth.missingHeader`: Missing token header (empty `Authorization` header).
+      - `auth.invalidHeader`: Wrong token header format (must be in the `Bearer <token>` form).
+      - `auth.tokenExpired`: Expired token. A new token must be requested from the original issuer.
+    schema:
+      $ref: '#/definitions/Error'
+  BadToken:
+    description: |
+      - `auth.badToken`: Error while verifying the token. Mostly due to a bad signature (wrong issuer).
+    schema:
+      $ref: '#/definitions/Error'
+  BadLocalOrRemoteToken:
+    description: |
+      - `auth.badToken`: Error while verifying the token. Mostly due to a bad signature (wrong issuer).
+      - `auth.remote.badToken`: The provided token has been refused by the remote exchange. Mostly due to bad credentials during the authentication phase.
+    schema:
+      $ref: '#/definitions/Error'
+
+definitions:
+  Error:
+    type: object
+    discriminator: code
+    properties:
+      code:
+        type: number
+        format: int32
+      message:
+        type: string
+      details:
+        type: object
+    required:
+      - code
+      - message
+  Market:
+    type: object
+    properties:
+      currency:
+        type: string
+      asset:
+        type: string
+      minimalOrder:
+        type: number
+        format: double
+        minimum: 0
+    required:
+      - currency
+      - asset
+  Trade:
+    type: object
+    properties:
+      date:
+        type: string
+        format: date
+      type:
+        type: string
+        enum:
+          - buy
+          - sell
+      rate:
+        type: number
+        format: double
+        minimum: 0
+      amount:
+        type: number
+        format: double
+        minimum: 0
+    required:
+      - date
+      - type
+      - rate
+      - amount
+  Order:
+    type: object
+    properties:
+      date:
+        type: string
+        format: date
+      rate:
+        type: number
+        format: double
+        minimum: 0
+      amount:
+        type: number
+        format: double
+        minimum: 0
+    required:
+      - date
+      - amount
+  OpenOrder:
+    type: object
+    allOf:
+      - $ref: '#/definitions/Order'
+      - type: object
+        properties:
+          id:
+            type: string
+          type:
+            type: string
+            enum:
+              - ask
+              - bid
+        required:
+          - id
+          - type
+  OpenOrderRef:
+    type: object
+    properties:
+      id:
+        type: string
+      resultingTrades:
+        type: array
+        items:
+          $ref: '#/definitions/Trade'
+    required:
+      - id
+      - resultingTrades
+  OpenPosition:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - long
+          - short
+      amount:
+        type: number
+        format: double
+        minimum: 0
+      basePrice:
+        type: number
+        format: double
+        minimum: 0
+      liquidationPrice:
+        type: number
+        format: double
+        minimum: 0
+      profitsLosses:
+        type: number
+        format: double
+      lendingFees:
+        type: number
+        format: double
+    required:
+      - type
+      - basePrice
+      - liquidationPrice
+      - profitsLosses
+      - lendingFees
