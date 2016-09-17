@@ -58,6 +58,40 @@ paths:
               - name
               - version
               - token
+  /parameters:
+    get:
+      description: |
+        Return the exchange common parameters.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            title: Parameters
+            type: object
+            properties:
+              minimalAmount:
+                type: number
+                format: double
+                minimum: 0
+              fees:
+                type: object
+                discriminator: strategy
+                properties:
+                  strategy:
+                    type: string
+                    enum:
+                      - MAKER_TAKER
+                      - BUY_SELL
+                      - FIXED
+                required:
+                  - strategy
+            required:
+              - minimalAmount
+              - fees
+      security:
+        - token: []
   /markets:
     get:
       description: |
