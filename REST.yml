@@ -588,13 +588,17 @@ definitions:
         type: string
       asset:
         type: string
-      minimalOrder:
-        type: number
-        format: double
-        minimum: 0
+      types:
+        type: array
+        items:
+          type: string
+          enum:
+            - exchange
+            - margin
     required:
       - currency
       - asset
+      - types
   Trade:
     type: object
     properties:
