@@ -622,7 +622,7 @@ definitions:
         format: double
         minimum: 0
     required:
-      - date
+      - rate
       - amount
   OpenOrder:
     type: object
