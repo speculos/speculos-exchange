@@ -90,6 +90,10 @@ paths:
             required:
               - minimalAmount
               - fees
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
       security:
         - token: []
   /markets:
