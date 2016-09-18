@@ -352,6 +352,11 @@ paths:
           schema:
             type: object
             properties:
+              type:
+                type: string
+                enum:
+                  - ask
+                  - bid
               strategy:
                 type: string
                 enum:
@@ -367,6 +372,7 @@ paths:
                 format: double
                 minimum: 0
             required:
+              - type
               - strategy
               - rate
               - amount
@@ -385,7 +391,6 @@ paths:
         404:
           description: |
             - `market.notFound`: Market not found.
-            - `openOrder.notFound`: Open order not found.
           schema:
             $ref: '#/definitions/Error'
       security:
