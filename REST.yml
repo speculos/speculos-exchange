@@ -355,14 +355,14 @@ paths:
               type:
                 type: string
                 enum:
-                  - ask
-                  - bid
+                  - ASK
+                  - BID
               strategy:
                 type: string
                 enum:
-                  - fillOrKill
-                  - immediateOrCancel
-                  - postOnly
+                  - FILL_OR_KILL
+                  - IMMEDIATE_OR_CANCEL
+                  - POST_ONLY
               rate:
                 type: number
                 format: double
@@ -468,8 +468,8 @@ paths:
               type:
                 type: string
                 enum:
-                  - buy
-                  - sell
+                  - BUY
+                  - SELL
               rate:
                 type: number
                 format: double
@@ -585,8 +585,8 @@ definitions:
         items:
           type: string
           enum:
-            - exchange
-            - margin
+            - EXCHANGE
+            - MARGIN
     required:
       - currency
       - asset
@@ -600,8 +600,8 @@ definitions:
       type:
         type: string
         enum:
-          - buy
-          - sell
+          - BUY
+          - SELL
       rate:
         type: number
         format: double
@@ -640,8 +640,8 @@ definitions:
           type:
             type: string
             enum:
-              - ask
-              - bid
+              - ASK
+              - BID
         required:
           - id
           - type
@@ -663,8 +663,8 @@ definitions:
       type:
         type: string
         enum:
-          - long
-          - short
+          - LONG
+          - SHORT
       amount:
         type: number
         format: double
