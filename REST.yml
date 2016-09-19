@@ -338,10 +338,11 @@ paths:
         Create an order on this market.
         The order will be added in the order book if no instant resolution could be made due to the current market bids/asks.
 
-        You can use one of the three following strategies to ensure your order will be processed accordingly:
-          - `fillOrKill`: The order must either fill in its entirety or be completely aborted.
-          - `immediateOrCancel`: The order can be partially or completely filled, but any portion of the order that cannot be filled immediately will be canceled rather than left on the order book
-          - `postOnly`: The order will only be placed if no portion of it fills immediately. This guarantees you will never pay the taker fee on any part of the order that fills.
+        You can use one of the four following strategies to ensure your order will be processed accordingly:
+          - `DEFAULT`: No particular strategy. The order may be split or put on hold.
+          - `FILL_OR_KILL`: The order must either fill in its entirety or be completely aborted.
+          - `IMMEDIATE_OR_CANCEL`: The order can be partially or completely filled, but any portion of the order that cannot be filled immediately will be canceled rather than left on the order book
+          - `POST_ONLY`: The order will only be placed if no portion of it fills immediately. This guarantees you will never pay the taker fee on any part of the order that fills.
       tags:
         - Trading API
       parameters:
@@ -360,6 +361,7 @@ paths:
               strategy:
                 type: string
                 enum:
+                  - DEFAULT
                   - FILL_OR_KILL
                   - IMMEDIATE_OR_CANCEL
                   - POST_ONLY
@@ -373,7 +375,6 @@ paths:
                 minimum: 0
             required:
               - type
-              - strategy
               - rate
               - amount
           required: true
@@ -452,8 +453,8 @@ paths:
         Modify the open position of an account on the specified market.
 
         There are two operations available:
-        - `buy`: Place a margin buy order on the specified market.
-        - `sell`: Place a margin sell order on the specified market.
+        - `BUY`: Place a margin buy order on the specified market.
+        - `SELL`: Place a margin sell order on the specified market.
       tags:
         - Trading API
       parameters:
