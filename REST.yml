@@ -338,6 +338,10 @@ paths:
         Create an order on this market.
         The order will be added in the order book if no instant resolution could be made due to the current market bids/asks.
 
+        The two order types are:
+          - `BID`: Place a buy order on the specified market.
+          - `ASK`: Place a sell order on the specified market.
+
         You can use one of the four following strategies to ensure your order will be processed accordingly:
           - `DEFAULT`: No particular strategy. The order may be split or put on hold.
           - `FILL_OR_KILL`: The order must either fill in its entirety or be completely aborted.
@@ -450,11 +454,11 @@ paths:
         - exchangeToken: []
     post:
       description: |
-        Modify the open position of an account on the specified market.
+        Modify the open position of an account on the specified market by posting a margin order.
 
-        There are two operations available:
-        - `BUY`: Place a margin buy order on the specified market.
-        - `SELL`: Place a margin sell order on the specified market.
+        The two order types are:
+        - `BID`: Place a margin buy order on the specified market.
+        - `ASK`: Place a margin sell order on the specified market.
       tags:
         - Trading API
       parameters:
@@ -469,8 +473,8 @@ paths:
               type:
                 type: string
                 enum:
-                  - BUY
-                  - SELL
+                  - BID
+                  - ASK
               rate:
                 type: number
                 format: double
