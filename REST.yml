@@ -548,7 +548,7 @@ responses:
     description: |
       - `auth.missingHeader`: Missing token header (empty `Authorization` header).
       - `auth.invalidHeader`: Wrong token header format (must be in the `Bearer <token>` form).
-      - `auth.tokenExpired`: Expired token. A new token must be requested from the original issuer.
+      - `auth.expiredToken`: Expired token. A new token must be requested from the original issuer.
     schema:
       $ref: '#/definitions/Error'
   BadToken:
