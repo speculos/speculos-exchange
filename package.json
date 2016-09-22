@@ -1,0 +1,19 @@
+{
+	"name":"speculos-exchange",
+	"version":"0.1.0",
+	"description":"Poloniex exchange",
+	"repository":{
+		"type":"git",
+		"url":"http://github.com/speculos/speculos-exchange"
+	},
+	"license":"MIT",
+	"engines":{
+		"node":"~6"
+	},
+	"devDependencies":{
+		"mocha":"3.0.2",
+		"chai":"3.5.0",
+		"co":"4.6.0",
+		"co-request":"1.0.0"
+	}
+}
