@@ -285,8 +285,6 @@ paths:
       description: |
         Creates a new JWT to hold user credentials for the exchange.
         The input parameters are exchange-specific, depending on the required underlying credentials.
-
-        The newly created JWT will be the only
       produces:
         - application/json
       responses:
