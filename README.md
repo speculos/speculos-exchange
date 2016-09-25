@@ -2,6 +2,8 @@
 
 This repository holds the abstract [REST](REST.md) and [WS](WS.md) interfaces of a typical [Speculos](https://github.com/speculos/speculos) exchange.
 
+For installation instructions, please refer to the [INSTALL.md](INSTALL.md) file.
+
 ## Implementation
 
 Speculos is built around a component-based approach, so the implementation is entirely left to the contributor. The only requirement is the common REST and WS interfaces.
@@ -17,9 +19,9 @@ Nonetheless, here are some implementation concern that could be of help:
 
 A remote exchange interface can be tested against the test suite present in this repository. To do so, you need to follow the steps described below.
 
-### Setup
+### Dependencies
 
-Just run the following command:
+Just run the following command to install development dependencies:
 ```shell
 npm install
 ```
