@@ -76,13 +76,14 @@ describe('rest.markets.market.trades', function() {
 					let tradeDate = new Date(trade.date);
 
 					lib.deps.expect(trade).to.be.an('object');
-					lib.deps.expect(trade.date).to.be.an('string');
+					lib.deps.expect(trade.id).to.be.a('string');
+					lib.deps.expect(trade.date).to.be.a('string');
 					lib.deps.expect(tradeDate.toString()).to.equal(trade.date);
 					lib.deps.expect(tradeDate.getTime()).to.be.at.least(startDate);
 					lib.deps.expect(tradeDate.getTime()).to.be.at.most(endDate);
 					lib.deps.expect(trade.type).to.be.oneOf(['BUY', 'SELL']);
-					lib.deps.expect(trade.rate).to.be.an('number');
-					lib.deps.expect(trade.amount).to.be.an('number');
+					lib.deps.expect(trade.rate).to.be.a('number');
+					lib.deps.expect(trade.amount).to.be.a('number');
 				}
 			});
 		});

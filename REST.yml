@@ -597,6 +597,8 @@ definitions:
   Trade:
     type: object
     properties:
+      id:
+        type: string
       date:
         type: string
         format: date
@@ -614,6 +616,7 @@ definitions:
         format: double
         minimum: 0
     required:
+      - id
       - date
       - type
       - rate
