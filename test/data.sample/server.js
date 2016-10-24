@@ -1,11 +1,5 @@
 'use strict';
 
-const lib = {
-	node:{
-		url:require('url')
-	}
-};
-
 /*
 	Server remote URL.
 */

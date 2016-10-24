@@ -53,14 +53,14 @@ describe('rest.parameters', function() {
 					case 'MAKER_TAKER':
 						lib.deps.expect(response.body.fees.maker).is.a('number');
 						lib.deps.expect(response.body.fees.taker).is.a('number');
-					break;
+						break;
 					case 'BUY_SELL':
 						lib.deps.expect(response.body.fees.buy).is.a('number');
 						lib.deps.expect(response.body.fees.sell).is.a('number');
-					break;
+						break;
 					case 'FIXED':
 						lib.deps.expect(response.body.fees.value).is.a('number');
-					break;
+						break;
 				}
 			});
 		});
