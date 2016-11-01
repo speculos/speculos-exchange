@@ -1,7 +1,7 @@
 swagger: '2.0'
 
 info:
-  version: 0.1.0
+  version: 0.1.6
   title: speculos-exchange
   description: Speculos exchange abstract API.
   contact:
@@ -377,7 +377,7 @@ paths:
             $ref: '#/definitions/Error'
       security:
         - exchangeToken: []
-  /markets/{market}/openOrders/{openOrder}:
+  /markets/{market}/openOrders/{order}:
     delete:
       description: |
         Cancel an order open on this market.
@@ -385,7 +385,7 @@ paths:
         - Trading API
       parameters:
         - $ref: '#/parameters/Market'
-        - $ref: '#/parameters/OpenOrder'
+        - $ref: '#/parameters/Order'
       produces:
         - application/json
       responses:
@@ -504,6 +504,37 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Trade'
+  /markets/{market}/orderTrades/{order}:
+    get:
+      description: |
+        Return the trades associated to the provided order.
+      tags:
+        - Trading API
+      parameters:
+        - $ref: '#/parameters/Market'
+        - $ref: '#/parameters/Order'
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: Trades
+            type: array
+            items:
+              $ref: '#/definitions/Trade'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadLocalOrRemoteToken'
+        404:
+          description: |
+            - `market.notFound`: Unknown market.
+            - `order.notFound`: Unknown order.
+          schema:
+            $ref: '#/definitions/Error'
+      security:
+        - exchangeToken: []
 
 parameters:
   Market:
@@ -513,8 +544,8 @@ parameters:
     description: Market currency/asset pair.
     required: true
     pattern: ^[A-Z]+_[A-Z]+$
-  OpenOrder:
-    name: openOrder
+  Order:
+    name: order
     in: path
     type: string
     description: Order unique identifier.

@@ -1,6 +1,6 @@
 {
 	"name":"speculos-exchange",
-	"version":"0.1.5",
+	"version":"0.1.6",
 	"description":"Poloniex exchange",
 	"repository":{
 		"type":"git",
