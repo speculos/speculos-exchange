@@ -118,6 +118,28 @@ paths:
           $ref: '#/responses/BadToken'
       security:
         - token: []
+  /markets/ticker:
+    get:
+      description: |
+        Returns the ticker for all the available markets on this exchange.
+      tags:
+        - Public API
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success.
+          schema:
+            title: Tickers
+            type: array
+            items:
+              $ref: '#/definitions/MarketMashup'
+        401:
+          $ref: '#/responses/MissingOrInvalidToken'
+        403:
+          $ref: '#/responses/BadToken'
+      security:
+        - token: []
   /markets/{market}:
     get:
       description: |
@@ -132,50 +154,7 @@ paths:
         200:
           description: Success.
           schema:
-            title: MarketMashup
-            type: object
-            properties:
-              currency:
-                type: string
-              asset:
-                type: string
-              ticker:
-                type: object
-                properties:
-                  last:
-                    type: number
-                    format: double
-                  volume:
-                    type: object
-                    properties:
-                      currency:
-                        type: number
-                        format: double
-                      asset:
-                        type: number
-                        format: double
-                    required:
-                      - currency
-                      - asset
-                  highest:
-                    type: number
-                    format: double
-                  lowest:
-                    type: number
-                    format: double
-                  percentChange:
-                    type: number
-                    format: double
-                required:
-                  - last
-                  - volume
-                  - highest
-                  - lowest
-                  - percentChange
-            required:
-              - currency
-              - asset
-              - ticker
+            $ref: '#/definitions/MarketMashup'
         401:
           $ref: '#/responses/MissingOrInvalidToken'
         403:
@@ -594,6 +573,55 @@ definitions:
       - currency
       - asset
       - types
+  MarketMashup:
+    type: object
+    properties:
+      currency:
+        type: string
+      asset:
+        type: string
+      ticker:
+        type: object
+        properties:
+          last:
+            type: number
+            format: double
+            minimum: 0
+          volume:
+            type: object
+            properties:
+              currency:
+                type: number
+                format: double
+                minimum: 0
+              asset:
+                type: number
+                format: double
+                minimum: 0
+            required:
+              - currency
+              - asset
+          highest:
+            type: number
+            format: double
+            minimum: 0
+          lowest:
+            type: number
+            format: double
+            minimum: 0
+          percentChange:
+            type: number
+            format: double
+        required:
+          - last
+          - volume
+          - highest
+          - lowest
+          - percentChange
+    required:
+      - currency
+      - asset
+      - ticker
   Trade:
     type: object
     properties:
