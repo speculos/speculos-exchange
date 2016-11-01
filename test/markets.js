@@ -58,5 +58,33 @@ describe('rest.markets', function() {
 				}
 			});
 		});
+
+		it('should return markets ticker', function() {
+			return lib.deps.co(function*() {
+				let response = yield lib.deps.request(Object.assign({}, config, {
+					url:config.url + '/ticker',
+					auth:{
+						bearer:lib.data.tokens.USER
+					}
+				}));
+
+				lib.deps.expect(response.statusCode).to.equal(200);
+				lib.deps.expect(response.body).to.be.an('array');
+
+				for(let market of response.body) {
+					lib.deps.expect(market).to.be.an('object');
+					lib.deps.expect(market.currency).to.be.a('string');
+					lib.deps.expect(market.asset).to.be.a('string');
+					lib.deps.expect(market.ticker).to.be.an('object');
+					lib.deps.expect(market.ticker.last).to.be.a('number').at.least(0);
+					lib.deps.expect(market.ticker.volume).to.be.an('object');
+					lib.deps.expect(market.ticker.volume.currency).to.be.a('number').at.least(0);
+					lib.deps.expect(market.ticker.volume.asset).to.be.a('number').at.least(0);
+					lib.deps.expect(market.ticker.highest).to.be.a('number').at.least(0);
+					lib.deps.expect(market.ticker.lowest).to.be.a('number').at.least(0);
+					lib.deps.expect(market.ticker.percentChange).to.be.a('number');
+				}
+			});
+		});
 	});
 });

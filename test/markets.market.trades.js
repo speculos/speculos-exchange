@@ -43,7 +43,7 @@ describe('rest.markets.market.trades', function() {
 		lib.common.checkInvalidToken(configValid);
 		lib.common.checkExpiredToken(configValid, lib.data.tokens.EXPIRED_USER);
 
-		it.skip('should throw for unknown market', function() {
+		it('should throw for unknown market', function() {
 			return lib.deps.co(function*() {
 				let response = yield lib.deps.request(Object.assign({}, configUnknown, {
 					auth:{
@@ -60,8 +60,8 @@ describe('rest.markets.market.trades', function() {
 
 		it('should return trades', function() {
 			return lib.deps.co(function*() {
-				let startDate = Date.now() - 1000 * 60 * 5;
-				let endDate = Date.now();
+				let startDate = Math.round((Date.now() - 1000 * 60 * 5) / 1000) * 1000;
+				let endDate = Math.round(Date.now() / 1000) * 1000;
 				let response = yield lib.deps.request(Object.assign({}, configValid, {
 					url:configValid.url + '?startDate=' + startDate + '&endDate=' + endDate,
 					auth:{

@@ -43,7 +43,7 @@ describe('rest.markets.market.orders', function() {
 		lib.common.checkInvalidToken(configValid);
 		lib.common.checkExpiredToken(configValid, lib.data.tokens.EXPIRED_USER);
 
-		it.skip('should throw for unknown market', function() {
+		it('should throw for unknown market', function() {
 			return lib.deps.co(function*() {
 				let response = yield lib.deps.request(Object.assign({}, configUnknown, {
 					auth:{
